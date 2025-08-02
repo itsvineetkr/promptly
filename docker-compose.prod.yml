@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: fullstack_mongodb_prod
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password123}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - fullstack-network
+    # Only expose internally, not to host
+    expose:
+      - "27017"
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: DockerFile
+      target: backend
+    container_name: fullstack_backend_prod
+    restart: always
+    environment:
+      - PROJECT_NAME=Backend
+      - API_STR=api
+      - API_VERSION=v1
+      - ALL_CORS_ORIGINS=["http://localhost", "https://yourdomain.com"]
+      - SERVICE_PORT=8000
+      - MONGODB_URI=mongodb://admin:${MONGO_ROOT_PASSWORD:-password123}@mongodb:27017
+      - SECRET_KEY=${SECRET_KEY:-your-super-secret-key-change-this-in-production}
+    depends_on:
+      - mongodb
+    networks:
+      - fullstack-network
+    # Only expose internally, not to host
+    expose:
+      - "8000"
+
+  # Nginx Reverse Proxy + Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: DockerFile
+      target: production
+    container_name: fullstack_frontend_prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - fullstack-network
+    volumes:
+      # Mount SSL certificates if needed
+      - ./ssl:/etc/nginx/ssl:ro
+
+volumes:
+  mongodb_data:
+
+networks:
+  fullstack-network:
+    driver: bridge

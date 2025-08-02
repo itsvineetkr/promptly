@@ -1,0 +1,61 @@
+# Multi-stage Docker build for FastAPI backend and React frontend
+
+# Backend Stage
+FROM python:3.11-slim as backend
+
+WORKDIR /app/backend
+
+# Copy requirements and install Python dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    ffmpeg \
+    tesseract-ocr \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy backend application code
+COPY backend/ .
+
+# Expose backend port
+EXPOSE 8000
+
+# Command to run the FastAPI application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# Frontend Stage
+FROM node:18-alpine as frontend-build
+
+WORKDIR /app/frontend
+
+# Copy package files
+COPY frontend/package*.json ./
+RUN npm install
+
+# Copy frontend source code
+COPY frontend/ .
+
+# Build the React application
+RUN npm run build
+
+# Production Stage - Nginx to serve frontend and proxy backend
+FROM nginx:alpine as production
+
+# Copy built frontend files
+COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
+
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

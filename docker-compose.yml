@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: chatbot_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - fullstack-network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: DockerFile
+      target: backend
+    container_name: chatbot_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME=Backend
+      - API_STR=api
+      - API_VERSION=v1
+      - ALL_CORS_ORIGINS=["http://localhost:3000", "http://localhost:5173", "http://frontend:80"]
+      - SERVICE_PORT=8000
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017
+      - SECRET_KEY=your-super-secret-key-change-this-in-production
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app/backend
+    networks:
+      - fullstack-network
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # React Frontend (Development)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: chatbot_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - fullstack-network
+    command: npm run dev
+
+volumes:
+  mongodb_data:
+
+networks:
+  fullstack-network:
+    driver: bridge
