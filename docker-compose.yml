@@ -14,10 +14,11 @@ services:
     volumes:
       - mongodb_data:/data/db
     networks:
-      - fullstack-network
+      - app-network
 
   # FastAPI Backend
   backend:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: DockerFile
@@ -36,10 +37,11 @@ services:
       - SECRET_KEY=your-super-secret-key-change-this-in-production
     depends_on:
       - mongodb
+      - typesense
     volumes:
       - ./backend:/app/backend
     networks:
-      - fullstack-network
+      - app-network
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
   # React Frontend (Development)
@@ -57,12 +59,30 @@ services:
       - ./frontend:/app
       - /app/node_modules
     networks:
-      - fullstack-network
+      - app-network
     command: npm run dev
+
+  typesense:
+    image: typesense/typesense:29.0
+    restart: on-failure
+    environment:
+      TYPESENSE_API_KEY: xyz
+    ports:
+      - "8108:8108"
+    volumes:
+      - typesense-data:/data
+    command: 
+      - '--data-dir=/data'
+      - '--api-key=xyz'
+      - '--enable-cors'
+    networks:
+      - app-network
 
 volumes:
   mongodb_data:
+  typesense-data:
+    driver: local
 
 networks:
-  fullstack-network:
+  app-network:
     driver: bridge
