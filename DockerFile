@@ -1,7 +1,7 @@
 # ========================
 # Backend Stage
 # ========================
-FROM python:3.12-slim as backend
+FROM python:3.12-bookworm as backend
 
 # Prevent Python from writing .pyc files and buffering stdout
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y \
 
 
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 RUN playwright install --with-deps
 
