@@ -1,7 +1,6 @@
 import aiohttp
 import asyncio
 from langchain_community.document_loaders import PyPDFLoader
-from src.routes.chatbot.image import ImageCaptioning
 from pathlib import Path
 from io import BytesIO
 from playwright.async_api import async_playwright
@@ -16,7 +15,8 @@ settings = get_settings()
 GEMINI_API_KEY = settings.GEMINI_API_KEY
 genai.configure(api_key=GEMINI_API_KEY)
 
-image_captioning = ImageCaptioning()
+# from src.routes.chatbot.image import ImageCaptioning
+# image_captioning = ImageCaptioning()
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/114.0.0.0 Safari/537.36",
@@ -227,12 +227,12 @@ async def extract_page_info(start_url, max_depth=1, max_urls=100):
                 for link in links:
                     await process_url(link, depth + 1)
 
-            elif content_type.startswith("image"):
-                try:
-                    caption = await image_captioning.generate_caption(url, session)
-                    urls_content[url] = f"Image Caption: {caption}"
-                except Exception as e:
-                    print(f"Image caption failed: {e}")
+            # elif content_type.startswith("image"):
+            #     try:
+            #         caption = await image_captioning.generate_caption(url, session)
+            #         urls_content[url] = f"Image Caption: {caption}"
+            #     except Exception as e:
+            #         print(f"Image caption failed: {e}")
 
             elif content_type.startswith("application/pdf"):
                 try:

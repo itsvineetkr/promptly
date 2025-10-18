@@ -47,7 +47,7 @@ motor==3.7.1
 multidict==6.6.3
 mypy_extensions==1.1.0
 numpy==1.26.4
-opencv-python==4.11.0.86
+# opencv-python==4.11.0.86
 orjson==3.11.1
 packaging==24.2
 pandas==2.2.3
@@ -83,9 +83,9 @@ SQLAlchemy==2.0.42
 starlette==0.47.1
 tenacity==9.1.2
 tokenizers==0.21.4
-torchvision==0.21.0
+# torchvision==0.21.0
 tqdm==4.67.1
-transformers==4.54.1
+# transformers==4.54.1
 typesense==1.1.1
 typing-inspect==0.9.0
 typing-inspection==0.4.1
