@@ -60,7 +60,7 @@ services:
       - /app/node_modules
     networks:
       - app-network
-    command: npm run dev
+    command: npm run dev -- --host 0.0.0.0
 
   typesense:
     image: typesense/typesense:29.0
@@ -71,7 +71,7 @@ services:
       - "8108:8108"
     volumes:
       - typesense-data:/data
-    command: 
+    command:
       - '--data-dir=/data'
       - '--api-key=xyz'
       - '--enable-cors'

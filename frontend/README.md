@@ -1,1 +1,3 @@
-Todo : Create Readme
+npm install
+npm run build
+npm run dev

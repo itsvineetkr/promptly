@@ -1,7 +1,7 @@
 # ========================
 # Backend Stage
 # ========================
-FROM python:3.12-bookworm as backend
+FROM python:3.12-bookworm AS backend
 
 # Prevent Python from writing .pyc files and buffering stdout
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -59,6 +59,8 @@ COPY frontend/package*.json ./
 RUN npm install --legacy-peer-deps
 
 COPY frontend/ .
+
+EXPOSE 5173
 RUN npm run build
 
 

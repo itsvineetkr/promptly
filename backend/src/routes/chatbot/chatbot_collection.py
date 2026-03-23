@@ -13,13 +13,15 @@ settings = get_settings()
 
 TYPESENSE_API_KEY = settings.TYPESENSE_API_KEY
 TYPESENSE_HOST = settings.TYPESENSE_HOST
+TYPESENSE_PORT = settings.TYPESENSE_PORT
+TYPESENSE_PROTOCOL = settings.TYPESENSE_PROTOCOL
 TYPESENSE_HOST_MULTISEARCH = f"https://{TYPESENSE_HOST}/search/multi_search"
 
 headers = {"X-TYPESENSE-API-KEY": TYPESENSE_API_KEY}
 client = typesense.Client(
     {
         "nodes": [
-            {"host": TYPESENSE_HOST, "port": "/search", "protocol": "https"}
+            {"host": TYPESENSE_HOST, "port": TYPESENSE_PORT, "protocol": TYPESENSE_PROTOCOL}
         ],
         "api_key": TYPESENSE_API_KEY,
         "connection_timeout_seconds": 1000,

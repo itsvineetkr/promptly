@@ -160,11 +160,11 @@ def get_information(text):
     Here is the text:
     {text}
     """
-    response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
+    response = genai.GenerativeModel("gemini-2.5-flash").generate_content(prompt)
     return response.text if response else "No information extracted."
 
 
-async def fetch_content(url, session, use_browser=False):
+async def fetch_content(url, session, use_browser=True):
     try:
         if use_browser:
             async with async_playwright() as p:
@@ -188,7 +188,7 @@ async def fetch_content(url, session, use_browser=False):
         raise Exception(f"[Fetch Error] {url}: {e}")
 
 
-async def extract_page_info(start_url, max_depth=1, max_urls=100):
+async def extract_page_info(start_url, max_depth=2, max_urls=30):
     visited = set()
     urls_content = {}
     sem = asyncio.Semaphore(5)
@@ -208,9 +208,9 @@ async def extract_page_info(start_url, max_depth=1, max_urls=100):
             try:
                 async with sem:
                     # Use JS-rendering for initial HTML pages only
-                    use_browser = url == start_url or url.endswith("/")
+                    # use_browser = url == start_url or url.endswith("/")
                     content, content_type = await fetch_content(
-                        url, session, use_browser=use_browser
+                        url, session, use_browser=True
                     )
             except Exception as e:
                 print(e)
@@ -225,7 +225,9 @@ async def extract_page_info(start_url, max_depth=1, max_urls=100):
 
                 links = extract_links(content)
                 for link in links:
-                    await process_url(link, depth + 1)
+                    # https://example.com/page = ["https:", "", "example.com", "page"]
+                    if link.split("/")[2] == start_url.split("/")[2]:  # same domain
+                        await process_url(link, depth + 1)
 
             # elif content_type.startswith("image"):
             #     try:
@@ -279,7 +281,7 @@ async def get_chatbot_response(query, similar_docs, conversation_history=[]):
     Generate a response based on the above information.
     """
 
-    response = await genai.GenerativeModel("gemini-2.0-flash").generate_content_async(
+    response = await genai.GenerativeModel("gemini-2.5-flash").generate_content_async(
         prompt
     )
     return response.text if response else "No response generated."

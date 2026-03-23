@@ -20,8 +20,8 @@ vector_collection = VectorCollection()
 async def scrape(
     website_url: str,
     origin_url: str,
-    max_depth: int = 1,
-    max_urls: int = 100,
+    max_depth: int = 3,
+    max_urls: int = 30,
     current_user: User = Depends(get_current_active_user),
 ):
     """

@@ -62,6 +62,8 @@ class Settings(BaseSettings):
 
     TYPESENSE_API_KEY: str
     TYPESENSE_HOST: str
+    TYPESENSE_PORT: int
+    TYPESENSE_PROTOCOL: str
 
 @lru_cache
 def get_settings():
