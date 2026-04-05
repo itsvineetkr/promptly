@@ -35,6 +35,7 @@ class Settings(BaseSettings):
 
 
     FRONTEND_URL: AnyUrl = "http://localhost:3000"
+    BACKEND_URL: str
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_comma_separated_list)
     ] = []

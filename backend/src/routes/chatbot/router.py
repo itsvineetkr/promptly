@@ -10,11 +10,14 @@ from src.routes.chatbot.models import QueryRequest
 from src.routes.chatbot.constants import CHATBOT_SCRIPT, CHATBOT_SCRIPT_BLACK, INITIALIZATION_CODE
 from src.auth.models import User
 from src.auth.utils import get_current_active_user
+from src.config import get_settings
 
+
+settings = get_settings()
+backend_url = settings.BACKEND_URL
 
 router = APIRouter(responses={418: {"description": "Chatbot endpoints"}})
 vector_collection = VectorCollection()
-
 
 @router.post("/chatbot/scrape")
 async def scrape(
@@ -118,7 +121,7 @@ async def get_chatbot_js_with_collection(collection_name: str, color: str):
     """
     customized_js = CHATBOT_SCRIPT.get(
         color, CHATBOT_SCRIPT_BLACK
-    ) + INITIALIZATION_CODE.format(collection_name=collection_name)
+    ) + INITIALIZATION_CODE.format(collection_name=collection_name, backend_url=backend_url)
 
     return Response(
         content=customized_js,
