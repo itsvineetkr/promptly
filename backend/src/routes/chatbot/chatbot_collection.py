@@ -137,7 +137,7 @@ class VectorCollection:
         return {
             "status": "success",
             "scrapped_content": content,
-            "script_tag": f"<script src='http://127.0.0.1:8000/api/v1/chatbot/BL/{collection_name}.js'></script>",
+            "script_tag": f"<script src='https://promptlyback.vineetkr.me/api/v1/chatbot/BL/{collection_name}.js'></script>",
         }
 
     async def search_vector_db(self, query: str, collction_name: str, k: int = 5):

@@ -20,7 +20,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALL_CORS_ORIGINS,
+    allow_origins=["http://localhost:1001", "http://promptly.vineetkr.me"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
