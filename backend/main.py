@@ -1,9 +1,9 @@
 import uvicorn
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 
 from src.auth.router import router as auth_router
 from src.routes.chatbot.router import router as chatbot_router
+from src.cors import DynamicCORSMiddleware, refresh_allowed_origins
 from src.config import get_settings
 
 
@@ -19,12 +19,21 @@ app = FastAPI(
 )
 
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:1001", "http://promptly.vineetkr.me"],
+    DynamicCORSMiddleware,
+    allow_origins=settings.ALL_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def load_allowed_origins():
+    """Load the scraped websites' origins into the CORS allowlist."""
+    try:
+        await refresh_allowed_origins()
+    except Exception as e:
+        print(f"Warning: could not load allowed origins from MongoDB: {e}")
 
 
 app.include_router(

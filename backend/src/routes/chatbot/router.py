@@ -11,6 +11,7 @@ from src.routes.chatbot.models import QueryRequest
 from src.routes.chatbot.constants import CHATBOT_SCRIPT, CHATBOT_SCRIPT_BLACK, INITIALIZATION_CODE
 from src.auth.models import User
 from src.auth.utils import get_current_active_user
+from src.cors import refresh_allowed_origins
 from src.config import get_settings
 
 
@@ -48,6 +49,8 @@ async def scrape(
         await allowed_origins_collection.insert_one(
             {"origin": origin_url, "user_id": user_id, "created_at": pd.Timestamp.now()}
         )
+        # Make the new origin usable by the widget immediately
+        await refresh_allowed_origins()
 
     try:
         content = await extract_page_info(
@@ -55,8 +58,6 @@ async def scrape(
         )
         if not content:
             return {"message": "No content extracted from the website."}
-
-        print(content)
 
         response = await vector_collection.create_vector_db(
             urls_content=content, website_url=website_url, user_id=user_id
@@ -114,7 +115,7 @@ async def ask(
 
     try:
         similar_docs = await vector_collection.search_vector_db(
-            request.query, request.collection_name, 2
+            request.query, request.collection_name, 3
         )
         chatbot_response = await get_chatbot_response(request.query, similar_docs, request.conversation_history)
         return {"query": request.query, "response": chatbot_response}

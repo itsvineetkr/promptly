@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     @property
     def ALL_CORS_ORIGINS(self) -> list[str]:
         return [str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS] + [
-            self.FRONTEND_URL
+            str(self.FRONTEND_URL).rstrip("/")
         ]
 
     SECRET_KEY: str
