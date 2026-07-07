@@ -3,7 +3,8 @@ import typesense
 import pandas as pd
 
 from src.database.mongo import allowed_origins_collection
-from src.routes.chatbot.utils import extract_page_info
+from src.routes.chatbot.utils import extract_page_info, format_url
+from src.routes.chatbot.models import chatbot_collection
 from src.routes.chatbot.chatbot_collection import VectorCollection
 from src.routes.chatbot.utils import get_chatbot_response
 from src.routes.chatbot.models import QueryRequest
@@ -65,6 +66,29 @@ async def scrape(
 
     except Exception as e:
         return {"message": f"An error occurred while scraping the website. {e}"}
+
+
+@router.get("/chatbot/websites")
+async def list_scraped_websites(current_user: User = Depends(get_current_active_user)):
+    """
+    List the websites the current user has already scraped, along with the
+    script tag for each, so previously generated chatbots can be reused.
+    """
+    user_id = current_user.id
+    website_urls = await chatbot_collection.distinct("website_url", {"user_id": user_id})
+
+    websites = []
+    for website_url in website_urls:
+        collection_name = f"{user_id}_chatbot_{format_url(website_url)}"
+        websites.append(
+            {
+                "website_url": website_url,
+                "collection_name": collection_name,
+                "script_tag": f"<script src='https://promptlyback.vineetkr.me/api/v1/chatbot/BL/{collection_name}.js'></script>",
+            }
+        )
+
+    return {"status": "success", "websites": websites}
 
 
 @router.post("/chatbot/ask")

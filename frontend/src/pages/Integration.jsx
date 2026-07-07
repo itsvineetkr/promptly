@@ -66,7 +66,36 @@ export default function ChatbotIntegration() {
   const [copied, setCopied] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [testState, setTestState] = useState("off"); // off | loading | on | error
+  const [websites, setWebsites] = useState([]);
+  const [websitesLoading, setWebsitesLoading] = useState(true);
+  const [selectedWebsite, setSelectedWebsite] = useState("");
   const timerRef = useRef(null);
+
+  const fetchWebsites = async () => {
+    try {
+      const res = await API.get("/chatbot/websites");
+      if (res.data.status === "success") {
+        setWebsites(res.data.websites);
+      }
+    } catch {
+      // Non-critical: the list just stays empty
+    } finally {
+      setWebsitesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWebsites();
+  }, []);
+
+  const selectWebsite = (site) => {
+    stopTest();
+    setError("");
+    setScrapedContent("");
+    setSelectedWebsite(site.website_url);
+    setUrl(site.website_url);
+    setScriptTag(site.script_tag.replace(/\/chatbot\/[A-Z]{2}\//, `/chatbot/${selectedTheme}/`));
+  };
 
   // Progress timer while scraping
   useEffect(() => {
@@ -124,6 +153,8 @@ export default function ChatbotIntegration() {
         setScriptTag(
           response.data.script_tag.replace(/\/chatbot\/[A-Z]{2}\//, `/chatbot/${selectedTheme}/`)
         );
+        setSelectedWebsite(targetUrl);
+        fetchWebsites();
       } else {
         setError(
           response.data.message ||
@@ -182,7 +213,7 @@ export default function ChatbotIntegration() {
   const secs = String(elapsed % 60).padStart(2, "0");
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
+    <main className="mx-auto max-w-5xl px-6 py-16">
       <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400">
         Dashboard
       </p>
@@ -191,8 +222,61 @@ export default function ChatbotIntegration() {
         Scrape your site, pick a theme, then embed — and test — the widget.
       </p>
 
+      <div className="mt-12 grid items-start gap-6 lg:grid-cols-[260px_1fr]">
+        {/* Sidebar — existing chatbots */}
+        <aside className="border border-neutral-200 lg:sticky lg:top-20">
+          <div className="flex items-baseline justify-between border-b border-neutral-200 px-4 py-3">
+            <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-neutral-400">
+              Your chatbots
+            </h2>
+            {!websitesLoading && (
+              <span className="font-mono text-xs text-neutral-400">{websites.length}</span>
+            )}
+          </div>
+          {websitesLoading ? (
+            <p className="flex items-center gap-2 px-4 py-4 text-sm text-neutral-400">
+              <Spinner className="h-3 w-3" /> Loading…
+            </p>
+          ) : websites.length === 0 ? (
+            <p className="px-4 py-4 text-sm text-neutral-400">
+              Nothing here yet — scrape your first website to create a chatbot.
+            </p>
+          ) : (
+            <ul className="divide-y divide-neutral-200">
+              {websites.map((site) => (
+                <li key={site.website_url}>
+                  <button
+                    onClick={() => selectWebsite(site)}
+                    title={site.website_url}
+                    className={`block w-full px-4 py-3 text-left transition-colors ${
+                      selectedWebsite === site.website_url
+                        ? "bg-neutral-900 text-white"
+                        : "hover:bg-neutral-50"
+                    }`}
+                  >
+                    <span className="block truncate font-mono text-xs">
+                      {site.website_url.replace(/^https?:\/\//, "")}
+                    </span>
+                    <span
+                      className={`mt-0.5 block text-[11px] ${
+                        selectedWebsite === site.website_url
+                          ? "text-neutral-400"
+                          : "text-neutral-400"
+                      }`}
+                    >
+                      {selectedWebsite === site.website_url ? "Selected" : "Get script tag →"}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </aside>
+
+        {/* Steps */}
+        <div>
       {/* Step 1 — Scrape */}
-      <section className="mt-12 border border-neutral-200 p-6">
+      <section className="border border-neutral-200 p-6">
         <StepHeading
           n="01"
           title="Scrape your website"
@@ -349,6 +433,8 @@ export default function ChatbotIntegration() {
           </>
         )}
       </section>
+        </div>
+      </div>
     </main>
   );
 }
