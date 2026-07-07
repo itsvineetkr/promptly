@@ -26,7 +26,7 @@ services:
     container_name: chatbot_backend
     restart: always
     ports:
-      - "8000:8000"
+      - "1000:8000"
     environment:
       - PROJECT_NAME=Backend
       - API_STR=api
@@ -52,7 +52,7 @@ services:
     container_name: chatbot_frontend
     restart: always
     ports:
-      - "5173:5173"
+      - "1001:5173"
     environment:
       - VITE_API_URL=http://localhost:8000
     volumes:

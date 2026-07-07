@@ -1,49 +1,106 @@
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-export default function IntroPage() {
+const STEPS = [
+  {
+    n: "01",
+    title: "Point us at your site",
+    text: "Enter your website URL and we crawl your pages, indexing the content your visitors ask about.",
+  },
+  {
+    n: "02",
+    title: "Pick a theme",
+    text: "Choose a widget style that matches your brand. Switch themes any time without re-scraping.",
+  },
+  {
+    n: "03",
+    title: "Paste one script tag",
+    text: "Drop a single line of HTML into your site. The chatbot appears and answers from your own content.",
+  },
+];
+
+const FEATURES = [
+  ["No backend required", "Everything runs on our infrastructure — you only add a script tag."],
+  ["Trained on your content", "Answers come from your scraped pages, not generic knowledge."],
+  ["Works anywhere", "Blogs, product sites, docs, dashboards — any page that can load a script."],
+  ["Test before you ship", "Preview the exact widget on our dashboard before touching your site."],
+];
+
+export default function Home({ loggedIn }) {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-20 space-y-10">
-      {/* Main Heading */}
-      <h1 className="text-5xl font-extrabold tracking-tight text-gray-900">
-        Elevate Your Website with our AI Chatbots
-      </h1>
-
-      {/* Subheading */}
-      <p className="text-xl text-muted-foreground leading-relaxed">
-        Fast, flexible, and easy-to-integrate chatbot solution for modern websites.
-      </p>
-
-      {/* Content */}
-      <div className="space-y-6 text-base text-gray-700 leading-relaxed">
-        <p>
-          Our chatbot platform empowers you to automate conversations, assist
-          visitors, and improve user experience – all without writing a single
-          line of backend logic. It's plug-and-play: just insert a script tag and
-          you're ready to go.
+    <main className="mx-auto max-w-5xl px-6">
+      {/* Hero */}
+      <section className="border-b border-neutral-200 py-24">
+        <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400">
+          AI chatbots for any website
         </p>
-
-        <p>
-          Whether you're running a blog, a product site, or an enterprise dashboard,
-          our solution adapts to your content. You can scrape site data, choose from
-          multiple UI themes, and embed the assistant seamlessly into your frontend.
+        <h1 className="mt-4 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight">
+          Your website, answering its own questions.
+        </h1>
+        <p className="mt-6 max-w-xl text-lg leading-relaxed text-neutral-500">
+          Promptly scrapes your site, builds a knowledge base, and gives you a
+          chatbot you can embed with a single script tag. No backend code, no
+          training pipelines.
         </p>
+        <div className="mt-10 flex items-center gap-4">
+          <button
+            onClick={() => navigate(loggedIn ? "/integrate" : "/signup")}
+            className="bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-neutral-700"
+          >
+            {loggedIn ? "Open dashboard" : "Create your chatbot"}
+          </button>
+          <button
+            onClick={() => navigate(loggedIn ? "/integrate" : "/login")}
+            className="border border-neutral-300 px-6 py-3 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-900 hover:text-neutral-900"
+          >
+            {loggedIn ? "Manage integration" : "Log in"}
+          </button>
+        </div>
+        <div className="mt-14 max-w-xl border border-neutral-200 bg-neutral-50 p-4">
+          <p className="font-mono text-xs text-neutral-400"># All it takes:</p>
+          <code className="mt-1 block overflow-x-auto whitespace-nowrap font-mono text-sm text-neutral-800">
+            {'<script src="https://promptly…/chatbot/BL/your-site.js"></script>'}
+          </code>
+        </div>
+      </section>
 
-        <p>
-          Focus on what you do best. Let the chatbot handle support, FAQs, and lead
-          engagement for you.
+      {/* How it works */}
+      <section className="border-b border-neutral-200 py-20">
+        <h2 className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400">
+          How it works
+        </h2>
+        <div className="mt-10 grid gap-px border border-neutral-200 bg-neutral-200 md:grid-cols-3">
+          {STEPS.map((step) => (
+            <div key={step.n} className="bg-white p-8">
+              <span className="font-mono text-sm text-neutral-300">{step.n}</span>
+              <h3 className="mt-3 text-base font-semibold">{step.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-500">{step.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-20">
+        <h2 className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400">
+          Why Promptly
+        </h2>
+        <div className="mt-10 grid gap-x-12 gap-y-10 md:grid-cols-2">
+          {FEATURES.map(([title, text]) => (
+            <div key={title} className="border-t border-neutral-900 pt-4">
+              <h3 className="text-base font-semibold">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-500">{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="border-t border-neutral-200 py-8">
+        <p className="font-mono text-xs text-neutral-400">
+          Promptly — plug-and-play AI chatbots.
         </p>
-      </div>
-
-      {/* Buttons */}
-      <div className="flex gap-4 pt-4">
-        <Button onClick={() => navigate("/signup")}>Create Account</Button>
-        <Button variant="outline" onClick={() => navigate("/integrate")}>
-          Integrate Now
-        </Button>
-      </div>
-    </div>
+      </footer>
+    </main>
   );
 }
